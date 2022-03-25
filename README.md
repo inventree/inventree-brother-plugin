@@ -11,10 +11,11 @@ This plugin supports printing to *some* Brother label printers with network (wir
 
 ## Installation
 
-This plugin is available on [pypi]() and can be installed via PIP with the following command:
+Due to the requirement of the `brother_ql` library, installation must be performed as follows:
 
 ```
-pip install inventree-brother-plugin
+pip install git+https://github.com/pklaus/brother_ql
+pip install git+https://github.com/inventree/inventree-brother-plugin
 ```
 
 ## Configuration Options
