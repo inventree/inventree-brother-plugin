@@ -17,6 +17,8 @@ from brother_ql.labels import ALL_LABELS
 # translation
 from django.utils.translation import ugettext_lazy as _
 
+from inventree_brother.version import BROTHER_PLUGIN_VERSION
+
 # InvenTree plugin libs
 from plugin import IntegrationPluginBase
 from plugin.mixins import LabelPrintingMixin, SettingsMixin
@@ -42,7 +44,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBas
 
     AUTHOR = "Oliver Walters"
     DESCRIPTION = "Label printing plugin for Brother printers"
-    VERSION = "0.1"
+    VERSION = BROTHER_PLUGIN_VERSION
 
     PLUGIN_NAME = "Brother"
     PLUGIN_SLUG = "brother"

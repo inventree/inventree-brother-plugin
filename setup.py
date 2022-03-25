@@ -2,7 +2,7 @@
 
 import setuptools
 
-from inventree_brother import BrotherLabelPlugin
+from inventree_brother.version import BROTHER_PLUGIN_VERSION
 
 with open('README.md', encoding='utf-8') as f:
     long_description = f.read()
@@ -11,7 +11,7 @@ with open('README.md', encoding='utf-8') as f:
 setuptools.setup(
     name="inventree-brother-plugin",
 
-    version=BrotherLabelPlugin.VERSION,
+    version=BROTHER_PLUGIN_VERSION,
 
     author="Oliver Walters",
 
