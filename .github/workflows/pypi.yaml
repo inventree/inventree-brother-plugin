@@ -21,7 +21,6 @@ jobs:
           python-version: 3.7
       - name: Install Python Dependencies
         run: |
-          pip install -U -r requirements.txt
           pip install --upgrade wheel setuptools twine
       - name: Build Binary
         run: |
