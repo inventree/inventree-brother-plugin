@@ -1,5 +1,4 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![PyPI](https://img.shields.io/pypi/v/inventree-brother-plugin)](https://pypi.org/project/inventree-brother-plugin/)
 ![PEP](https://github.com/inventree/inventree-python/actions/workflows/pep.yaml/badge.svg)
 
 
