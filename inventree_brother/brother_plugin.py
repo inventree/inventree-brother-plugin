@@ -15,9 +15,6 @@ from brother_ql.backends.helpers import send
 from brother_ql.models import ALL_MODELS
 from brother_ql.labels import ALL_LABELS
 
-# pillow
-from PIL import Image
-
 # translation
 from django.utils.translation import ugettext_lazy as _
 

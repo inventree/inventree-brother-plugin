@@ -25,4 +25,4 @@ jobs:
           pip install pep8-naming==0.11.1
       - name: Style Checks
         run: |
-          invoke style
+          flake8 .

@@ -1,5 +1,2 @@
 # brother_ql library - note that the latest pypi release is somewhat outdated
 git+https://github.com/pklaus/brother_ql/@56cf4394ad750346c6b664821ccd7489ec140dae
-
-# other requirements should already be satisfied by InvenTree dependencies
-pillow>=9.0.1
