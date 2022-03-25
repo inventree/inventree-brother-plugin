@@ -38,5 +38,11 @@ setuptools.setup(
         "wheel",
     ],
 
-    python_requires=">=3.6"
+    python_requires=">=3.6",
+
+    entry_points={
+        "inventree_plugins": [
+            "BrotherLabeLPlugin = inventree_brother.brother_plugin:BrotherLabelPlugin"
+        ]
+    },
 )
