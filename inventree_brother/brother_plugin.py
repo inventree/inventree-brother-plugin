@@ -6,7 +6,6 @@ using the brother_ql library.
 
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from dis import Instruction
 
 # Required brother_ql libs
 from brother_ql.conversion import convert
@@ -19,7 +18,7 @@ from brother_ql.labels import ALL_LABELS
 from django.utils.translation import ugettext_lazy as _
 
 # InvenTree plugin libs
-from plugin.brother_plugin import IntegrationPluginBase
+from plugin import IntegrationPluginBase
 from plugin.mixins import LabelPrintingMixin, SettingsMixin
 
 
