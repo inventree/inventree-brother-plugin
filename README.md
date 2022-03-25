@@ -1,3 +1,8 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PyPI](https://img.shields.io/pypi/v/inventree-brother-plugin)](https://pypi.org/project/inventree-brother-plugin/)
+![PEP](https://github.com/inventree/inventree-python/actions/workflows/pep.yaml/badge.svg)
+
+
 # inventree-brother-plugin
 
 A label printing plugin for [InvenTree](https://inventree.org), which provides support for the [Brother label printers](https://www.brother.com.au/en/products/all-labellers/labellers).
@@ -15,9 +20,3 @@ pip install inventree-brother-plugin
 ## Configuration Options
 
 **TODO**
-
-## Notes
-
-### PT-750W
-
-To print to the PT-750W printer, the *Use Compression* option [must be enabled](https://github.com/pklaus/brother_ql/issues/78).
