@@ -74,14 +74,14 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBas
         },
     }
 
-    def print_label(self, label):
+    def print_label(self, label_image):
         """
         Send the label to the printer
         """
 
         # Read settings
         model = self.get_setting('MODEL')
-        label = self.get_setting('LABEL'),
+        label = self.get_setting('LABEL')
         ip_address = self.get_setting('IP_ADDRESS')
         auto_cut = self.get_setting('AUTO_CUT')
 
@@ -90,9 +90,9 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBas
         # Generate instructions for printing
         params = {
             'qlr': printer,
-            'images': [label],
+            'images': [label_image],
             'cut': auto_cut,
-            'rotate': 270,  # Required rotation for correct printing
+            'rotate': '270',  # Required rotation for correct printing
             'hq': True,
             'label': label,
         }
