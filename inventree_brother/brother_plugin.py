@@ -76,10 +76,16 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBas
         },
     }
 
-    def print_label(self, label_image):
+    def print_label(self, label_image, **kwargs):
         """
         Send the label to the printer
         """
+
+        # TODO: Add padding around the provided image, otherwise the label does not print correctly
+
+        # Extract length and width information
+        length = kwargs['length']
+        width = kwargs['width']
 
         # Read settings
         model = self.get_setting('MODEL')
