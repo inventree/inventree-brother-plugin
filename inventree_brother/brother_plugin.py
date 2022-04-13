@@ -85,8 +85,8 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBas
         # TODO: Improve label auto-scaling based on provided width and height information
 
         # Extract width (x) and height (y) information
-        width = kwargs['width']
-        height = kwargs['height']
+        # width = kwargs['width']
+        # height = kwargs['height']
 
         # Read settings
         model = self.get_setting('MODEL')
