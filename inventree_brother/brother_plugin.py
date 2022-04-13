@@ -40,6 +40,14 @@ def get_label_choices():
     return [(label.identifier, label.name) for label in ALL_LABELS]
 
 
+def get_rotation_choices():
+    """
+    Return a list of available rotation angles
+    """
+
+    return [(f"{degree}", f"{degree}°") for degree in [0, 90, 180, 270]]
+
+
 class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase):
 
     AUTHOR = "Oliver Walters"
@@ -74,6 +82,12 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBas
             'validator': bool,
             'default': True,
         },
+        'ROTATION': {
+            'name': _('Rotation'),
+            'description': _('Rotation of the image on the label'),
+            'choices': get_rotation_choices,
+            'default': '0',
+        },
     }
 
     def print_label(self, label_image, **kwargs):
@@ -93,6 +107,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBas
         label = self.get_setting('LABEL')
         ip_address = self.get_setting('IP_ADDRESS')
         auto_cut = self.get_setting('AUTO_CUT')
+        rotation = self.get_setting('ROTATION')
 
         printer = BrotherQLRaster(model=model)
 
@@ -101,7 +116,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBas
             'qlr': printer,
             'images': [label_image],
             'cut': auto_cut,
-            'rotate': '270',  # Required rotation for correct printing
+            'rotate': rotation,
             'hq': True,
             'label': label,
         }
