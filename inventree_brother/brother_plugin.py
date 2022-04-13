@@ -82,10 +82,11 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBas
         """
 
         # TODO: Add padding around the provided image, otherwise the label does not print correctly
+        # TODO: Improve label auto-scaling based on provided width and height information
 
-        # Extract length and width information
-        length = kwargs['length']
-        width = kwargs['width']
+        # Extract width (x) and height (y) information
+        # width = kwargs['width']
+        # height = kwargs['height']
 
         # Read settings
         model = self.get_setting('MODEL')
