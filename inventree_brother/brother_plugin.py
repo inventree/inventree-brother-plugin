@@ -20,7 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from inventree_brother.version import BROTHER_PLUGIN_VERSION
 
 # InvenTree plugin libs
-from plugin import IntegrationPluginBase
+from plugin import InvenTreePlugin
 from plugin.mixins import LabelPrintingMixin, SettingsMixin
 
 
@@ -48,15 +48,15 @@ def get_rotation_choices():
     return [(f"{degree}", f"{degree}°") for degree in [0, 90, 180, 270]]
 
 
-class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, IntegrationPluginBase):
+class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
     AUTHOR = "Oliver Walters"
     DESCRIPTION = "Label printing plugin for Brother printers"
     VERSION = BROTHER_PLUGIN_VERSION
 
-    PLUGIN_NAME = "Brother"
-    PLUGIN_SLUG = "brother"
-    PLUGIN_TITLE = "Brother Label Printer"
+    NAME = "Brother"
+    SLUG = "brother"
+    TITLE = "Brother Label Printer"
 
     SETTINGS = {
         'MODEL': {
