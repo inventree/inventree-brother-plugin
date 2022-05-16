@@ -57,7 +57,6 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
     NAME = "Brother"
     SLUG = "brother"
     TITLE = "Brother Label Printer"
-    VERSION = "0.2"
 
     SETTINGS = {
         'MODEL': {
