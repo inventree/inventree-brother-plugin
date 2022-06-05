@@ -50,7 +50,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
     DESCRIPTION = "Label printing plugin for Brother printers"
     VERSION = BROTHER_PLUGIN_VERSION
 
-    NAME = "Brother"
+    NAME = "Brother Labels"
     SLUG = "brother"
     TITLE = "Brother Label Printer"
 
@@ -95,8 +95,8 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # TODO: Improve label auto-scaling based on provided width and height information
 
         # Extract width (x) and height (y) information
-        width = kwargs['width']
-        height = kwargs['height']
+        # width = kwargs['width']
+        # height = kwargs['height']
 
         # Extract image from the provided kwargs
         label_image = kwargs['png_file']
