@@ -1,11 +1,7 @@
-"""
-Label printing plugin for InvenTree.
-Supports direct printing of labels to networked label printers,
-using the brother_ql library.
-"""
+"""Brother label printing plugin for InvenTree.
 
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+Supports direct printing of labels to networked label printers, using the brother_ql library.
+"""
 
 # Required brother_ql libs
 from brother_ql.conversion import convert
@@ -90,7 +86,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         },
     }
 
-    def print_label(self, label_image, **kwargs):
+    def print_label(self, **kwargs):
         """
         Send the label to the printer
         """
@@ -99,8 +95,11 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # TODO: Improve label auto-scaling based on provided width and height information
 
         # Extract width (x) and height (y) information
-        # width = kwargs['width']
-        # height = kwargs['height']
+        width = kwargs['width']
+        height = kwargs['height']
+
+        # Extract image from the provided kwargs
+        label_image = kwargs['png_file']
 
         # Read settings
         model = self.get_setting('MODEL')
