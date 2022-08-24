@@ -108,6 +108,12 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         auto_cut = self.get_setting('AUTO_CUT')
         rotation = self.get_setting('ROTATION')
 
+        # Check if red labels used
+        if label in ['62red']:
+            red = True
+        else:
+            red = False
+
         printer = BrotherQLRaster(model=model)
 
         # Generate instructions for printing
@@ -118,6 +124,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'rotate': rotation,
             'hq': True,
             'label': label,
+            'red': red,
         }
 
         if model in ['PT-P750W', 'PT-P900W']:
