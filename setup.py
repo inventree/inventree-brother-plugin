@@ -32,7 +32,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
 
     install_requires=[
-        'brother_ql @ git+https://github.com/pklaus/brother_ql/@56cf4394ad750346c6b664821ccd7489ec140dae',
+        'brother-ql-inventree',
     ],
 
     setup_requires=[
@@ -40,7 +40,7 @@ setuptools.setup(
         "twine",
     ],
 
-    python_requires=">=3.6",
+    python_requires=">=3.7",
 
     entry_points={
         "inventree_plugins": [
