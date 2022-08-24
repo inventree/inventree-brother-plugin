@@ -10,18 +10,16 @@ This plugin supports printing to *some* Brother label printers with network (wir
 
 ## Installation
 
-> :warning: Installation via pypi (e.g. `pip install inventree-brother-plugin`) currently does not work!
-
-Instead, install this plugin as follows:
+Install this plugin manually as follows:
 
 ```
-pip install git+https://github.com/inventree/inventree-brother-plugin
+pip install inventree-brother-plugin
 ```
 
-Or, add to your `plugins.txt` file:
+Or, add to your `plugins.txt` file to install automatically using the `invoke install` command:
 
 ```
- git+https://github.com/inventree/inventree-brother-plugin
+inventree-brother-plugin
 ```
  
 ## Configuration Options
