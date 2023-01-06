@@ -84,6 +84,12 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'choices': get_rotation_choices,
             'default': '0',
         },
+        'COMPRESSION': {
+            'name': _('Compression'),
+            'description': _('Enable image compression option (required for some printer models)'),
+            'validator': bool,
+            'default': False,
+        },
     }
 
     def print_label(self, **kwargs):
@@ -103,10 +109,8 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
         # Read settings
         model = self.get_setting('MODEL')
-        label = self.get_setting('LABEL')
         ip_address = self.get_setting('IP_ADDRESS')
-        auto_cut = self.get_setting('AUTO_CUT')
-        rotation = self.get_setting('ROTATION')
+        label = self.get_setting('LABEL')
 
         # Check if red labels used
         if label in ['62red']:
@@ -120,16 +124,13 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         params = {
             'qlr': printer,
             'images': [label_image],
-            'cut': auto_cut,
-            'rotate': rotation,
-            'hq': True,
             'label': label,
+            'cut': self.get_setting('AUTO_CUT'),
+            'rotate': self.get_setting('ROTATION'),
+            'compress': self.get_setting('COMPRESSION'),
+            'hq': True,
             'red': red,
         }
-
-        if model in ['PT-P750W', 'PT-P900W']:
-            # Override compression setting for these printers
-            params['compress'] = True
 
         instructions = convert(**params)
 
