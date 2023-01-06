@@ -90,6 +90,12 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'validator': bool,
             'default': False,
         },
+        'HQ': {
+            'name': _('High Quality'),
+            'description': _('Enable high quality option (required for some printers)'),
+            'validator': bool,
+            'default': True,
+        },
     }
 
     def print_label(self, **kwargs):
@@ -128,7 +134,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'cut': self.get_setting('AUTO_CUT'),
             'rotate': self.get_setting('ROTATION'),
             'compress': self.get_setting('COMPRESSION'),
-            'hq': True,
+            'hq': self.get_setting('HQ'),
             'red': red,
         }
 
