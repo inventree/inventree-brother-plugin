@@ -24,12 +24,12 @@ inventree-brother-plugin
  
 ### Debian / Ubuntu requirements
 
-The following command can be used to install all os-requirements on Debian / Ubuntu based distros:
+The following command can be used to install all OS-requirements on Debian / Ubuntu-based distros:
 ```bash
 apt install build-essential libpoppler-cpp-dev pkg-config poppler-utils
 ```
 
-You might also need following python packages:
+You might also need the following Python packages:
 ```bash
 pip install pdf-info python-poppler
 ```
