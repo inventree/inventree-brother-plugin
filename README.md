@@ -22,6 +22,18 @@ Or, add to your `plugins.txt` file to install automatically using the `invoke in
 inventree-brother-plugin
 ```
  
+### Debian / Ubuntu requirements
+
+The following command can be used to install all os-requirements on Debian / Ubuntu based distros:
+```bash
+apt install build-essential libpoppler-cpp-dev pkg-config poppler-utils
+```
+
+You might also need following python packages:
+```bash
+pip install pdf-info python-poppler
+```
+
 ## Configuration Options
 
 **TODO**
