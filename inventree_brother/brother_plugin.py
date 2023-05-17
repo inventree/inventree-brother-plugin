@@ -19,6 +19,8 @@ from inventree_brother.version import BROTHER_PLUGIN_VERSION
 from plugin import InvenTreePlugin
 from plugin.mixins import LabelPrintingMixin, SettingsMixin
 
+# Image library
+from PIL import Image
 
 def get_model_choices():
     """
@@ -107,11 +109,20 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # TODO: Improve label auto-scaling based on provided width and height information
 
         # Extract width (x) and height (y) information
-        # width = kwargs['width']
-        # height = kwargs['height']
+        width = int(kwargs['width'])
+        height = int(kwargs['height'])
 
         # Extract image from the provided kwargs
         label_image = kwargs['png_file']
+
+        # Create an empty canvas with the correct size needed for the label type
+        label_size = (width, height)  # (306, 991)
+        canvas = Image.new("RGB", label_size, "white")
+        # Paste the label image centered on the canvas
+        image_offset = ((label_size[0] - label_image.width) // 2,
+                        (label_size[1] - label_image.height) // 2)
+        canvas.paste(label_image, image_offset)
+        canvas.save("/tmp/canvas.png")
 
         # Read settings
         model = self.get_setting('MODEL')
