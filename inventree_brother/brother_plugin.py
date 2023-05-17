@@ -122,7 +122,6 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         image_offset = ((label_size[0] - label_image.width) // 2,
                         (label_size[1] - label_image.height) // 2)
         canvas.paste(label_image, image_offset)
-        canvas.save("/tmp/canvas.png")
 
         # Read settings
         model = self.get_setting('MODEL')
@@ -140,7 +139,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # Generate instructions for printing
         params = {
             'qlr': printer,
-            'images': [label_image],
+            'images': [canvas],
             'label': label,
             'cut': self.get_setting('AUTO_CUT'),
             'rotate': self.get_setting('ROTATION'),
