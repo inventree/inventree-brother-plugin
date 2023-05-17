@@ -116,7 +116,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         label_image = kwargs['png_file']
 
         # Create an empty canvas with the correct size needed for the label type
-        label_size = (width, height)  # (306, 991)
+        label_size = (306, 991)  # (width, height)
         canvas = Image.new("RGB", label_size, "white")
         # Paste the label image centered on the canvas
         image_offset = ((label_size[0] - label_image.width) // 2,
