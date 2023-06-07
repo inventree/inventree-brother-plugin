@@ -8,7 +8,7 @@ from brother_ql.conversion import convert
 from brother_ql.raster import BrotherQLRaster
 from brother_ql.backends.helpers import send
 from brother_ql.models import ALL_MODELS
-from brother_ql.labels import ALL_LABELS
+from brother_ql.labels import ALL_LABELS, FormFactor
 
 # translation
 from django.utils.translation import ugettext_lazy as _
@@ -20,7 +20,8 @@ from plugin import InvenTreePlugin
 from plugin.mixins import LabelPrintingMixin, SettingsMixin
 
 # Image library
-from PIL import Image
+from PIL import ImageOps
+
 
 def get_model_choices():
     """
@@ -124,18 +125,27 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         ip_address = self.get_setting('IP_ADDRESS')
         media_type = self.get_setting('LABEL')
 
-        # As the brother_ql library only accepts an image with exactly the right size for the label type,
-        # we need to resize the image. For now just center the image with some whitespace around the side,
-        # but ideally this plugin or maybe the label printing base module should provide some formatting
-        # options for scaling, margins, etc.
-        # TODO: correctly handle case where label image is bigger than printable area
-        for media_specifications in ALL_LABELS:
-            if media_specifications.identifier == media_type:
-                printable_dimensions = media_specifications.dots_printable
-        printable_image = Image.new("RGB", printable_dimensions, "white")
-        margin_left = (printable_dimensions[0] - label_image.width) // 2
-        margin_top = (printable_dimensions[1] - label_image.height) // 2
-        printable_image.paste(label_image, (margin_left, margin_top))
+        # Get specifications of media type
+        media_specs = None
+        for label_specs in ALL_LABELS:
+            if label_specs.identifier == media_type:
+                media_specs = label_specs
+
+        try:
+            # Resize image if media type is a die cut label (the brother_ql library only accepts images
+            # with a specific size in that case)
+            # TODO: Make it generic for all media types
+            # TODO: Add GUI settings to configure scaling and margins
+            if media_specs.form_factor in [FormFactor.DIE_CUT, FormFactor.ROUND_DIE_CUT]:
+                # Scale image to fit the entire printable area and pad with whitespace (while preserving aspect ratio)
+                printable_image = ImageOps.pad(label_image, media_specs.dots_printable, color="white")
+            else:
+                # Just leave image as-is
+                printable_image = label_image
+        except AttributeError as e:
+            raise AttributeError("Could not find specifications of label media type '%s'" % media_type) from e
+        except Exception as e:
+            raise e
 
         # Check if red labels used
         if media_type in ['62red']:
