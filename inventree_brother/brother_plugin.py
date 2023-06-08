@@ -8,7 +8,7 @@ from brother_ql.conversion import convert
 from brother_ql.raster import BrotherQLRaster
 from brother_ql.backends.helpers import send
 from brother_ql.models import ALL_MODELS
-from brother_ql.labels import ALL_LABELS
+from brother_ql.labels import ALL_LABELS, FormFactor
 
 # translation
 from django.utils.translation import ugettext_lazy as _
@@ -18,6 +18,9 @@ from inventree_brother.version import BROTHER_PLUGIN_VERSION
 # InvenTree plugin libs
 from plugin import InvenTreePlugin
 from plugin.mixins import LabelPrintingMixin, SettingsMixin
+
+# Image library
+from PIL import ImageOps
 
 
 def get_model_choices():
@@ -104,11 +107,15 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         """
 
         # TODO: Add padding around the provided image, otherwise the label does not print correctly
+        # ^ Why? The wording in the underlying brother_ql library ('dots_printable') seems to suggest
+        # at least that area is fully printable.
         # TODO: Improve label auto-scaling based on provided width and height information
 
         # Extract width (x) and height (y) information
         # width = kwargs['width']
         # height = kwargs['height']
+        # ^ currently this width and height are those of the label template (before conversion to PDF
+        # and PNG) and are of little use
 
         # Extract image from the provided kwargs
         label_image = kwargs['png_file']
@@ -116,10 +123,32 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # Read settings
         model = self.get_setting('MODEL')
         ip_address = self.get_setting('IP_ADDRESS')
-        label = self.get_setting('LABEL')
+        media_type = self.get_setting('LABEL')
+
+        # Get specifications of media type
+        media_specs = None
+        for label_specs in ALL_LABELS:
+            if label_specs.identifier == media_type:
+                media_specs = label_specs
+
+        try:
+            # Resize image if media type is a die cut label (the brother_ql library only accepts images
+            # with a specific size in that case)
+            # TODO: Make it generic for all media types
+            # TODO: Add GUI settings to configure scaling and margins
+            if media_specs.form_factor in [FormFactor.DIE_CUT, FormFactor.ROUND_DIE_CUT]:
+                # Scale image to fit the entire printable area and pad with whitespace (while preserving aspect ratio)
+                printable_image = ImageOps.pad(label_image, media_specs.dots_printable, color="white")
+            else:
+                # Just leave image as-is
+                printable_image = label_image
+        except AttributeError as e:
+            raise AttributeError("Could not find specifications of label media type '%s'" % media_type) from e
+        except Exception as e:
+            raise e
 
         # Check if red labels used
-        if label in ['62red']:
+        if media_type in ['62red']:
             red = True
         else:
             red = False
@@ -129,8 +158,8 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # Generate instructions for printing
         params = {
             'qlr': printer,
-            'images': [label_image],
-            'label': label,
+            'images': [printable_image],
+            'label': media_type,
             'cut': self.get_setting('AUTO_CUT'),
             'rotate': self.get_setting('ROTATION'),
             'compress': self.get_setting('COMPRESSION'),
