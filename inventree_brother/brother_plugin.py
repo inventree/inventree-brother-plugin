@@ -57,6 +57,9 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
     SLUG = "brother"
     TITLE = "Brother Label Printer"
 
+    # Use background printing
+    BLOCKING_PRINT = False
+
     SETTINGS = {
         'MODEL': {
             'name': _('Printer Model'),
@@ -117,8 +120,13 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # ^ currently this width and height are those of the label template (before conversion to PDF
         # and PNG) and are of little use
 
-        # Extract image from the provided kwargs
-        label_image = kwargs['png_file']
+        # Look for png data in kwargs (if provided)
+        label_image = kwargs.get('png_file', None)
+
+        if not label_image:
+            # Convert PDF to PNG
+            pdf_data = kwargs['pdf_data']
+            label_image = self.render_to_png(label=None, pdf_data=pdf_data)
 
         # Read settings
         model = self.get_setting('MODEL')
