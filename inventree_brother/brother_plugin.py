@@ -139,7 +139,11 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             if label_specs.identifier == media_type:
                 media_specs = label_specs
 
-        rotation = int(self.get_setting('ROTATION'))
+        rotation = int(self.get_setting('ROTATION')) + 90
+        rotation = rotation % 360
+
+        if rotation in [90, 180, 270]:
+            label_image = label_image.rotate(rotation, expand=True)
 
         try:
             # Resize image if media type is a die cut label (the brother_ql library only accepts images
@@ -149,16 +153,6 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             if media_specs.form_factor in [FormFactor.DIE_CUT, FormFactor.ROUND_DIE_CUT]:
                 # Scale image to fit the entire printable area and pad with whitespace (while preserving aspect ratio)
                 printable_image = ImageOps.pad(label_image, media_specs.dots_printable, color="white")
-
-                if rotation == 90:
-                    # Rotate image 90 degrees
-                    printable_image = printable_image.rotate(90, expand=True)
-                elif rotation == 180:
-                    # Rotate image 180 degrees
-                    printable_image = printable_image.rotate(180, expand=True)
-                elif rotation == 270:
-                    # Rotate image 270 degrees
-                    printable_image = printable_image.rotate(270, expand=True)
 
             else:
                 # Just leave image as-is
@@ -182,7 +176,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'images': [printable_image],
             'label': media_type,
             'cut': self.get_setting('AUTO_CUT'),
-            'rotate': rotation,
+            'rotate': 0,
             'compress': self.get_setting('COMPRESSION'),
             'hq': self.get_setting('HQ'),
             'red': red,
