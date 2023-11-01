@@ -13,6 +13,9 @@ from brother_ql.labels import ALL_LABELS, FormFactor
 # translation
 from django.utils.translation import ugettext_lazy as _
 
+# printing options
+from rest_framework import serializers
+
 from inventree_brother.version import BROTHER_PLUGIN_VERSION
 
 # InvenTree plugin libs
@@ -47,6 +50,26 @@ def get_rotation_choices():
     return [(f"{degree}", f"{degree}°") for degree in [0, 90, 180, 270]]
 
 
+class BrotherLabelSerializer(serializers.Serializer):
+    """Custom serializer class for BrotherLabelPlugin.
+
+    Used to specify printing parameters at runtime
+    """
+
+    class Meta:
+        """Meta options for this serializer"""
+
+        fields = [
+            'copies',
+        ]
+    
+    copies = serializers.IntegerField(
+        default=1,
+        label=_('Copies'),
+        help_text=_('Number of copies to print'),
+    )
+
+
 class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
     AUTHOR = "Oliver Walters"
@@ -56,6 +79,8 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
     NAME = "Brother Labels"
     SLUG = "brother"
     TITLE = "Brother Label Printer"
+
+    PrintingOptionsSerializer = BrotherLabelSerializer
 
     # Use background printing
     BLOCKING_PRINT = False
@@ -119,6 +144,11 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # height = kwargs['height']
         # ^ currently this width and height are those of the label template (before conversion to PDF
         # and PNG) and are of little use
+
+        # Printing options requires a modern-ish InvenTree backend,
+        # which supports the 'printing_options' keyword argument
+        options = kwargs.get('printing_options', {})
+        n_copies = min(1, options.get('copies', 1))
 
         # Look for png data in kwargs (if provided)
         label_image = kwargs.get('png_file', None)
@@ -184,9 +214,10 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
         instructions = convert(**params)
 
-        send(
-            instructions=instructions,
-            printer_identifier=f'tcp://{ip_address}',
-            backend_identifier='network',
-            blocking=True
-        )
+        for _i in range(n_copies):
+            send(
+                instructions=instructions,
+                printer_identifier=f'tcp://{ip_address}',
+                backend_identifier='network',
+                blocking=True
+            )
