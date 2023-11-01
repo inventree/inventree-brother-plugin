@@ -56,13 +56,6 @@ class BrotherLabelSerializer(serializers.Serializer):
     Used to specify printing parameters at runtime
     """
 
-    class Meta:
-        """Meta options for this serializer"""
-
-        fields = [
-            'copies',
-        ]
-    
     copies = serializers.IntegerField(
         default=1,
         label=_('Copies'),
@@ -148,7 +141,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # Printing options requires a modern-ish InvenTree backend,
         # which supports the 'printing_options' keyword argument
         options = kwargs.get('printing_options', {})
-        n_copies = min(1, options.get('copies', 1))
+        n_copies = int(options.get('copies', 1))
 
         # Look for png data in kwargs (if provided)
         label_image = kwargs.get('png_file', None)
