@@ -32,7 +32,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
 
     install_requires=[
-        'brother-ql-inventree',
+        'brother-ql-inventree>=1.1',
     ],
 
     setup_requires=[
