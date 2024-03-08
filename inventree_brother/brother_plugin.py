@@ -11,7 +11,7 @@ from brother_ql.models import ALL_MODELS
 from brother_ql.labels import ALL_LABELS, FormFactor
 
 # translation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 # printing options
 from rest_framework import serializers
