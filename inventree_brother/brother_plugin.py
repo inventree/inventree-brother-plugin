@@ -96,6 +96,11 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
             'description': _('IP address of the brother label printer'),
             'default': '',
         },
+        'USB_DEVICE': {
+            'name': _('USB Device'),
+            'description': _('USB device identifier of the label printer (<VID>:<PID>/<SERIAL>)'),
+            'default': '',
+        },
         'AUTO_CUT': {
             'name': _('Auto Cut'),
             'description': _('Cut each label after printing'),
@@ -154,6 +159,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         # Read settings
         model = self.get_setting('MODEL')
         ip_address = self.get_setting('IP_ADDRESS')
+        usb_device = self.get_setting('USB_DEVICE')
         media_type = self.get_setting('LABEL')
 
         # Get specifications of media type
@@ -207,10 +213,25 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
         instructions = convert(**params)
 
+        # Select appropriate identifier and backend
+        printer_id = ''
+        backend_id = ''
+
+        # check IP address first, then USB
+        if ip_address:
+            printer_id=f'tcp://{ip_address}'
+            backend_id = 'network'
+        elif usb_device:
+            printer_id=f'usb://{usb_device}'
+            backend_id = 'pyusb'
+        else:
+            # Raise error when no backend is defined
+            raise ValueError("No IP address or USB device defined.")
+
         for _i in range(n_copies):
             send(
                 instructions=instructions,
-                printer_identifier=f'tcp://{ip_address}',
-                backend_identifier='network',
+                printer_identifier=printer_id,
+                backend_identifier=backend_id,
                 blocking=True
             )
