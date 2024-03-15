@@ -98,7 +98,7 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
         },
         'USB_DEVICE': {
             'name': _('USB Device'),
-            'description': _('USB device identifier of the label printer (<VID>:<PID>/<SERIAL>)'),
+            'description': _('USB device identifier of the label printer (VID:PID/SERIAL)'),
             'default': '',
         },
         'AUTO_CUT': {
