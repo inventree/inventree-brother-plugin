@@ -219,10 +219,10 @@ class BrotherLabelPlugin(LabelPrintingMixin, SettingsMixin, InvenTreePlugin):
 
         # check IP address first, then USB
         if ip_address:
-            printer_id=f'tcp://{ip_address}'
+            printer_id = f'tcp://{ip_address}'
             backend_id = 'network'
         elif usb_device:
-            printer_id=f'usb://{usb_device}'
+            printer_id = f'usb://{usb_device}'
             backend_id = 'pyusb'
         else:
             # Raise error when no backend is defined
