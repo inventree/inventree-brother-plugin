@@ -10,6 +10,9 @@ This plugin supports printing to *some* Brother label printers with network (wir
 
 ## Installation
 
+> [!IMPORTANT]
+> For InvenTree<0.16 use this package with version `0.9.0`
+
 Install this plugin manually as follows:
 
 ```
@@ -21,7 +24,9 @@ Or, add to your `plugins.txt` file to install automatically using the `invoke in
 ```
 inventree-brother-plugin
 ```
- 
+
+Now open your InvenTree's "Admin Center > Plugins" page to activate the plugin. Next, read below for instructions on setting up a printer via "Admin Center > Machines".
+
 ### Debian / Ubuntu requirements
 
 The following command can be used to install all OS-requirements on Debian / Ubuntu-based distros:
@@ -33,6 +38,12 @@ You might also need the following Python packages:
 ```bash
 pip install pdf-info python-poppler
 ```
+## Setup a machine instance for a Brother Label Printer
+
+This plugin provides a driver for the machine registry in InvenTree, where multiple instances of this driver can
+be set up for each physical label printer you want to connect to. Each machine has its own individual configuration set.
+
+To set up a new machine, go to "Admin Center > Machines" and hit the "+" button. Now choose a name for this specific printer, select "Label Printer" as machine type and "Brother Label Printer Driver" as a driver, then submit. The new printer will now be listed in the machines table. To configure the printer, click on its line to open the "Machine detail" panel where you can set the "Driver Settings" to match your label printer.
 
 ## Configuration Options
 The following list gives an overview of the available settings. Also check out the `brother-ql` package for more information.
