@@ -27,17 +27,6 @@ inventree-brother-plugin
 
 Now open your InvenTree's "Admin Center > Plugins" page to activate the plugin. Next, read below for instructions on setting up a printer via "Admin Center > Machines".
 
-### Debian / Ubuntu requirements
-
-The following command can be used to install all OS-requirements on Debian / Ubuntu-based distros:
-```bash
-apt install build-essential libpoppler-cpp-dev pkg-config poppler-utils
-```
-
-You might also need the following Python packages:
-```bash
-pip install pdf-info python-poppler
-```
 ## Setup a machine instance for a Brother Label Printer
 
 This plugin provides a driver for the machine registry in InvenTree, where multiple instances of this driver can
