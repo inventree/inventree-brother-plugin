@@ -10,8 +10,12 @@ This plugin supports printing to *some* Brother label printers with network (wir
 
 ## Installation
 
+### Minimum Requirements
+
 > [!IMPORTANT]
-> For InvenTree<0.16 use this package with version `0.9.0`
+> This plugin now requires the "modern" InvenTree UI - version `0.18.0` or newer. The plugin will not function correctly on an InvenTree instance below version `0.18.0`
+
+### Installation Procedure
 
 Install this plugin manually as follows:
 
