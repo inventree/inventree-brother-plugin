@@ -25,6 +25,6 @@ jobs:
       - name: Style Checks
         run: |
           ruff check
-      - name: Build
+      - name: Build Binary
         run: |
           python -m build
