@@ -13,7 +13,7 @@ from brother_ql.labels import ALL_LABELS, FormFactor
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from inventree_brother.version import BROTHER_PLUGIN_VERSION
+from . import BROTHER_PLUGIN_VERSION
 
 # InvenTree plugin libs
 from report.models import LabelTemplate

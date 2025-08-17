@@ -24,7 +24,7 @@ jobs:
           pip install --upgrade wheel setuptools twine
       - name: Build Binary
         run: |
-          python3 setup.py sdist bdist_wheel --universal
+          python -m build
       - name: Publish
         run: |
           python3 -m twine upload dist/*
