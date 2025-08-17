@@ -20,12 +20,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install Deps
         run: |
-          pip install invoke
-          pip install flake8
-          pip install pep8-naming
+          pip install -U ruff
+          pip install -U wheel setuptools twine build
       - name: Style Checks
         run: |
-          flake8 .
+          ruff check
       - name: Build
         run: |
           python -m build
