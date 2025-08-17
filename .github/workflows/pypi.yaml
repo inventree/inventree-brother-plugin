@@ -22,6 +22,9 @@ jobs:
       - name: Install Python Dependencies
         run: |
           pip install --upgrade wheel setuptools twine
+      - name: Install Deps
+        run: |
+          pip install -U wheel setuptools twine build
       - name: Build Binary
         run: |
           python -m build
