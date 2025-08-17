@@ -26,3 +26,6 @@ jobs:
       - name: Style Checks
         run: |
           flake8 .
+      - name: Build
+        run: |
+          python -m build
