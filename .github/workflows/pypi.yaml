@@ -19,9 +19,9 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - name: Install Python Dependencies
+      - name: Install Deps
         run: |
-          pip install --upgrade wheel setuptools twine
+          pip install -U wheel setuptools twine build
       - name: Build Binary
         run: |
           python -m build
