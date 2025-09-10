@@ -42,4 +42,9 @@ setuptools.setup(
             "BrotherLabeLPlugin = inventree_brother.brother_plugin:BrotherLabelPlugin"
         ]
     },
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Independent",
+        "Framework :: InvenTree",
+    ],
 )
