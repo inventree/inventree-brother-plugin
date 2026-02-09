@@ -43,7 +43,7 @@ The following list gives an overview of the available settings. Also check out t
 
 * **Printer Model**
 Currently supported models are: 
-QL-500, QL-550, QL-560, QL-570, QL-580N, QL-600, QL-650TD, QL-700, QL-710W, QL-720NW, QL-800, QL-810W, QL-820NWB, QL-1050, QL-1060N, QL-1100, QL-1100NWB, QL-1115NWB, PT-P750W, PT-P900W, PT-P950NW
+QL-500, QL-550, QL-560, QL-570, QL-580N, QL-600, QL-650TD, QL-700, QL-710W, QL-720NW, QL-800, QL-810W, QL-820NWB, QL-1050, QL-1060N, QL-1100, QL-1100NWB, QL-1115NWB, PT-P750W, PT-P900W, PT-P950NW, PT-P750W
 
 * **Label Media**
 Size and type of the label media. Supported options are (not all labels are available on all printers): 
