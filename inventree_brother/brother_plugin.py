@@ -3,15 +3,15 @@
 Supports direct printing of labels to networked label printers, using the brother_ql library.
 """
 
-# Required brother_ql libs
-from brother_ql.conversion import convert
-from brother_ql.raster import BrotherQLRaster
-from brother_ql.backends.helpers import send
-from brother_ql.models import ALL_MODELS
-from brother_ql.labels import ALL_LABELS, FormFactor
+from brother_label import BrotherLabel, Media
 
 from django.db import models
+from django.db.models.query import QuerySet
+from django.http import JsonResponse
 from django.utils.translation import gettext_lazy as _
+
+from rest_framework import serializers
+from rest_framework.request import Request
 
 from . import BROTHER_PLUGIN_VERSION
 
@@ -21,8 +21,7 @@ from plugin import InvenTreePlugin
 from plugin.machine import BaseMachineType
 from plugin.machine.machine_types import LabelPrinterBaseDriver, LabelPrinterMachine
 
-# Image library
-from PIL import ImageOps
+brother = BrotherLabel()
 
 # Backwards compatibility imports
 try:
@@ -75,13 +74,6 @@ class BrotherLabelPrinterDriver(LabelPrinterBaseDriver):
                 "default": "PT-P750W",
                 "required": True,
             },
-            "LABEL": {
-                "name": _("Label Media"),
-                "description": _("Select label media type"),
-                "choices": self.get_label_choices,
-                "default": "12",
-                "required": True,
-            },
             "IP_ADDRESS": {
                 "name": _("IP Address"),
                 "description": _("IP address of the brother label printer"),
@@ -93,20 +85,6 @@ class BrotherLabelPrinterDriver(LabelPrinterBaseDriver):
                     "USB device identifier of the label printer (VID:PID/SERIAL)"
                 ),
                 "default": "",
-            },
-            "AUTO_CUT": {
-                "name": _("Auto Cut"),
-                "description": _("Cut each label after printing"),
-                "validator": bool,
-                "default": True,
-                "required": True,
-            },
-            "ROTATION": {
-                "name": _("Rotation"),
-                "description": _("Rotation of the image on the label"),
-                "choices": self.get_rotation_choices,
-                "default": "0",
-                "required": True,
             },
             "COMPRESSION": {
                 "name": _("Compression"),
@@ -135,17 +113,59 @@ class BrotherLabelPrinterDriver(LabelPrinterBaseDriver):
                 "default": False,
                 "required": True,
             },
+            "LABEL": {
+                "name": _("Label Media"),
+                "description": _("Select label media type"),
+                "choices": self.get_label_choices,
+                "default": "12",
+                "required": True,
+            },
+            "ROTATION": {
+                "name": _("Rotation"),
+                "description": _("Rotation of the image on the label"),
+                "choices": self.get_rotation_choices,
+                "default": "0",
+                "required": True,
+            },
+            "AUTO_CUT": {
+                "name": _("Auto Cut"),
+                "description": _("Cut each label after printing"),
+                "validator": bool,
+                "default": True,
+                "required": True,
+            },
+            "AUTO_CUT_EVERY": {
+                "name": _("Auto Cut Every"),
+                "description": _("Cut every n-th label"),
+                "validator": int,
+                "default": 1,
+                "required": True,
+            },
+            "AUTO_CUT_END": {
+                "name": _("Auto Cut End"),
+                "description": _("Feed and cut after the last label is printed"),
+                "validator": bool,
+                "default": True,
+                "required": True,
+            },
+            "HALF_CUT": {
+                "name": _("Half Cut"),
+                "description": _("Half-cut labels"),
+                "validator": bool,
+                "default": True,
+                "required": True,
+            },
         }
 
         super().__init__(*args, **kwargs)
 
     def get_model_choices(self, **kwargs):
         """Returns a list of available printer models"""
-        return [(model.name, model.name) for model in ALL_MODELS]
+        return [(model, device.name) for (model, device) in brother.devices.items()]
 
     def get_label_choices(self, **kwargs):
         """Return a list of available label types"""
-        return [(label.identifier, label.name) for label in ALL_LABELS]
+        return [(str(media), media.description) for media in list(Media)]
 
     def get_rotation_choices(self, **kwargs):
         """Return a list of available rotation angles"""
@@ -157,14 +177,14 @@ class BrotherLabelPrinterDriver(LabelPrinterBaseDriver):
         # and maybe by running a simple ping test or similar for networked printers
         machine.set_status(LabelPrinterMachine.MACHINE_STATUS.CONNECTED)
 
-    def print_label(
+    def print_labels(
         self,
         machine: LabelPrinterMachine,
         label: LabelTemplate,
-        item: models.Model,
+        items: QuerySet[models.Model],
         **kwargs,
-    ) -> None:
-        """Send the label to the printer"""
+    ) -> JsonResponse | None:
+        """Print one or more labels with the provided template and items."""
 
         # TODO: Add padding around the provided image, otherwise the label does not print correctly
         # ^ Why? The wording in the underlying brother_ql library ('dots_printable') seems to suggest
@@ -179,97 +199,150 @@ class BrotherLabelPrinterDriver(LabelPrinterBaseDriver):
 
         # Printing options requires a modern-ish InvenTree backend,
         # which supports the 'printing_options' keyword argument
-        options = kwargs.get("printing_options", {})
-        n_copies = int(options.get("copies", 1))
+        options = kwargs.get('printing_options', {})
 
-        label_image = self.render_to_png(label, item)
+        media = options.get('label', '12')
+        copies = int(options.get('copies', 1))
+        autocut = options.get('autocut', True)
+        autocut_every = int(options.get('autocut_every', 1))
+        autocut_end = options.get('autocut_end', True)
+        halfcut = options.get('halfcut', True)
+
+        # Calculate rotation
+        rotation = int(options.get('rotation', 0)) + 90
+        rotation = rotation % 360
 
         # Read settings
         model = machine.get_setting("MODEL", "D")
         ip_address = machine.get_setting("IP_ADDRESS", "D")
         usb_device = machine.get_setting("USB_DEVICE", "D")
-        media_type = machine.get_setting("LABEL", "D")
-
-        # Get specifications of media type
-        media_specs = None
-        for label_specs in ALL_LABELS:
-            if label_specs.identifier == media_type:
-                media_specs = label_specs
-
-        rotation = int(machine.get_setting("ROTATION", "D")) + 90
-        rotation = rotation % 360
-
-        if rotation in [90, 180, 270]:
-            label_image = label_image.rotate(rotation, expand=True)
-
-        try:
-            # Resize image if media type is a die cut label (the brother_ql library only accepts images
-            # with a specific size in that case)
-            # TODO: Make it generic for all media types
-            # TODO: Add GUI settings to configure scaling and margins
-            if media_specs.form_factor in [
-                FormFactor.DIE_CUT,
-                FormFactor.ROUND_DIE_CUT,
-            ]:
-                # Scale image to fit the entire printable area and pad with whitespace (while preserving aspect ratio)
-                printable_image = ImageOps.pad(
-                    label_image, media_specs.dots_printable, color="white"
-                )
-
-            else:
-                # Just leave image as-is
-                printable_image = label_image
-        except AttributeError as e:
-            raise AttributeError(
-                "Could not find specifications of label media type '%s'" % media_type
-            ) from e
-        except Exception as e:
-            raise e
-
-        # Check if red labels used
-        if media_type in ["62red"]:
-            red = True
-        else:
-            red = False
-
-        printer = BrotherQLRaster(model=model)
-
-        # Generate instructions for printing
-        params = {
-            "qlr": printer,
-            "images": [printable_image],
-            "label": media_type,
-            "cut": machine.get_setting("AUTO_CUT", "D"),
-            "rotate": 0,
-            "compress": machine.get_setting("COMPRESSION", "D"),
-            "hq": machine.get_setting("HQ", "D"),
-            "red": red,
-            "dither": machine.get_setting("DITHER", "D"),
-        }
-        # machine.get_setting(key: str, config_type_str: Literal['M', 'D'], cache: bool = False)
-        # config_type_str: Either "M" (machine scoped settings) or "D" (driver scoped settings)
-
-        instructions = convert(**params)
+        compress = machine.get_setting("COMPRESSION", "D")
+        hq = machine.get_setting("HQ", "D")
+        dither = machine.get_setting("DITHER", "D")
 
         # Select appropriate identifier and backend
-        printer_id = ""
-        backend_id = ""
+        target = ''
+        backend = ''
 
-        # check IP address first, then USB
         if ip_address:
-            printer_id = f"tcp://{ip_address}"
-            backend_id = "network"
+            target = f'tcp://{ip_address}'
+            backend = 'network'
         elif usb_device:
-            printer_id = f"usb://{usb_device}"
-            backend_id = "pyusb"
+            target = f'usb://{usb_device}'
+            backend = 'pyusb'
         else:
-            # Raise error when no backend is defined
             raise ValueError("No IP address or USB device defined.")
 
-        for _i in range(n_copies):
-            send(
-                instructions=instructions,
-                printer_identifier=printer_id,
-                backend_identifier=backend_id,
-                blocking=True,
-            )
+        # Render labels
+        labels = [
+            self.render_to_png(label, item, **kwargs)
+            for item in items
+        ]
+
+        # Print labels
+        brother.print(
+            media,
+            [label for label in labels for x in range(copies)],
+            autocut=autocut,
+            autocut_every=autocut_every,
+            autocut_end=autocut_end,
+            halfcut=halfcut,
+            device=model,
+            compress=compress,
+            hq=hq,
+            dither=dither,
+            rotate=rotation,
+            target=target,
+            backend=backend,
+            blocking=True
+        )
+
+    def get_printing_options_serializer(
+        self, request: Request, *args, **kwargs
+    ) -> 'LabelPrinterBaseDriver.PrintingOptionsSerializer':
+        """Return a serializer class instance with dynamic printing options."""
+        return self.PrintingOptionsSerializer(self, *args, **kwargs)
+
+    class PrintingOptionsSerializer(LabelPrinterBaseDriver.PrintingOptionsSerializer):
+        """Printing options serializer for brother labels."""
+
+        def __init__(self, plugin, machine=None, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            # Configure fields
+            self.fields['rotation'].choices = plugin.get_rotation_choices()
+
+            # Configure with machine settings (if available)
+            if machine:
+                label = machine.get_setting("LABEL", "D")
+
+                # Filter label choices to device model
+                self.fields['label'].choices = self.get_label_choices(
+                    machine.get_setting("MODEL", "D"),
+                    default=label
+                )
+
+                # Apply defaults
+                self.fields['label'].default = label
+                self.fields['rotation'].default = machine.get_setting("ROTATION", "D")
+                self.fields['autocut'].default = machine.get_setting("AUTO_CUT", "D")
+                self.fields['autocut_every'].default = machine.get_setting("AUTO_CUT_EVERY", "D")
+                self.fields['autocut_end'].default = machine.get_setting("AUTO_CUT_END", "D")
+                self.fields['halfcut'].default = machine.get_setting("HALF_CUT", "D")
+            else:
+                # Fallback to all label choices
+                self.fields['label'].choices = plugin.get_label_choices()
+
+        def get_label_choices(self, model, default=None):
+            device = brother.devices.get(model)
+
+            if not device:
+                return [(str(media), media.description) for media in list(Media)]
+            
+            choices = []
+
+            for label in device.labels:
+                if label.media == default:
+                    choices.append((label.media, f"{label.name} ({_('default')})"))
+                else:
+                    choices.append((label.media, label.name))
+
+            return choices
+
+        label = serializers.ChoiceField(
+            label=_("Label Media"),
+            help_text=_("Select label media type"),
+            choices=[],
+            default="12",
+        )
+
+        rotation = serializers.ChoiceField(
+            label=_("Rotation"),
+            help_text=_("Rotation of the image on the label"),
+            choices=[],
+            default="0",
+        )
+
+        autocut = serializers.BooleanField(
+            default=True,
+            label=_("Auto Cut"),
+            help_text=_("Automatically cut the label after printing")
+        )
+
+        autocut_every = serializers.IntegerField(
+            default=1,
+            label=_("Auto Cut Every"),
+            help_text=_("Cut every n-th label")
+        )
+
+        autocut_end = serializers.BooleanField(
+            default=True,
+            label=_("Auto Cut End"),
+            help_text=_("Feed and cut after the last label is printed")
+        )
+
+        halfcut = serializers.BooleanField(
+            default=True,
+            label=_("Half Cut"),
+            help_text=_("Half-cut labels")
+        )

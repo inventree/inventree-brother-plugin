@@ -30,7 +30,7 @@ setuptools.setup(
     license="MIT",
     packages=setuptools.find_packages(),
     install_requires=[
-        "brother-ql-inventree>=1.1",
+        "brother-label>=2.0a10",
     ],
     setup_requires=[
         "wheel",
